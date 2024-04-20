@@ -7,11 +7,11 @@ using PetShop.Petshop.services.Interfaces;
 
 namespace PetShop.Petshop.services.Services
 {
-    public class UserService : IUserInfoService
+    public class IdentityService : IIdentityService
     {
         private readonly UserManager<UsersInfo> _userManager;
 
-        public UserService(UserManager<UsersInfo> userManager)
+        public IdentityService(UserManager<UsersInfo> userManager)
         {
             _userManager = userManager;
         }

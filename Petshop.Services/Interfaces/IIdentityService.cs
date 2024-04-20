@@ -3,7 +3,7 @@ using PetShop.Petshop.Models;
 
 namespace PetShop.Petshop.services.Interfaces
 {
-    public interface IUserInfoService
+    public interface IIdentityService
     {
         Task<IdentityResult> CreateAsync(UsersInfo user);
         Task<UsersInfo?> CheckUserAndPass(string userName, string password);
