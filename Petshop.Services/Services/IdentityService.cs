@@ -25,7 +25,10 @@ namespace PetShop.Petshop.services.Services
                 {
                     return user;
                 }
-                return null;
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -56,7 +59,7 @@ namespace PetShop.Petshop.services.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error getting user roles: {ex.Message}");
-                throw; 
+                throw;
             }
         }
     }

@@ -8,8 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Petshop.Models\Interfaces\" />
-    <Folder Include="Petshop.Models\Responses\" />
-    <Folder Include="Petshop.Models\Requests\" />
   </ItemGroup>
 
 </Project>
