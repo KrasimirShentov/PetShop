@@ -10,6 +10,9 @@ namespace PetShop.Petshop.Models
 
         [Required]
         public string Breed { get; set; }
+        
+        [Required]
+        public string Name { get; set; }
 
         [Required]
         public int Age { get; set; }

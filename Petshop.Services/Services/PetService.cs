@@ -41,11 +41,11 @@ namespace PetShop.Petshop.services.Services
             }
         }
 
-        public async Task<IEnumerable<Pet>> GetAllPetsAsync(string name)
+        public async Task<IEnumerable<Pet>> GetAllPetsAsync()
         {
             try
             {
-                return await _IpetService.GetAllPetsAsync(name);
+                return await _IpetService.GetAllPetsAsync();
             }
             catch (Exception ex)
             {
