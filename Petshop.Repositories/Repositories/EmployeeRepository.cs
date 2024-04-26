@@ -1,4 +1,5 @@
-﻿using PetShop.Petshop.Models;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using PetShop.Petshop.Models;
 using PetShop.Petshop.Repositories.Interfaces;
 
 namespace PetShop.Petshop.Repositories.Repositories
@@ -17,7 +18,7 @@ namespace PetShop.Petshop.Repositories.Repositories
         {
             return await Task.FromResult(_employees.FirstOrDefault(x => x.EmployeeID == employeeID));
         }
-        public async Task AddEmployeeAsync(Employee employee)
+        public async Task<Employee> AddEmployeeAsync(Employee employee)
         {
             if (employee == null)
             {
@@ -27,7 +28,7 @@ namespace PetShop.Petshop.Repositories.Repositories
             {
                 employee.EmployeeID = _employeeId++;
                 _employees.Add(employee);
-                await Task.CompletedTask;
+                return employee;
             }
 
         }
@@ -48,7 +49,7 @@ namespace PetShop.Petshop.Repositories.Repositories
         }
 
 
-        public async Task UpdateEmployeeAsync(Employee employee)
+        public async Task<Employee> UpdateEmployeeAsync(Employee employee)
         {
             if (employee == null)
             {
@@ -69,7 +70,7 @@ namespace PetShop.Petshop.Repositories.Repositories
                     existingEmployee.SickLeaveHours = employee.SickLeaveHours;
                     existingEmployee.ModifiedDate = DateTime.Now;
 
-                    await Task.CompletedTask;
+                    return existingEmployee;
                 }
                 else
                 {

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PetShop.Petshop.Models;
+using PetShop.Petshop.Models.Petshop.Responses;
 using PetShop.Petshop.services.Interfaces;
+using System.Net;
 
 namespace PetShop.Controllers
 {
@@ -9,12 +11,10 @@ namespace PetShop.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly ILogger<EmployeeController> _logger;
         private readonly IEmployeeService _employeeService;
 
-        public EmployeeController(ILogger<EmployeeController> logger, IEmployeeService employeeRepository)
+        public EmployeeController(IEmployeeService employeeRepository)
         {
-            _logger = logger;
             _employeeService = employeeRepository;
         }
 
@@ -22,29 +22,26 @@ namespace PetShop.Controllers
         public async Task<IActionResult> GetEmployeeByIDAsync(int employeeID)
         {
             var employee = await _employeeService.GetEmployeeByIdAsync(employeeID);
-
             if (employee == null)
             {
                 return NotFound();
             }
-            else
-            {
-                return Ok();
-            }
+            return Ok(employee);
         }
 
         [HttpGet("Get all")]
         public async Task<IActionResult> GetAllEmployees()
         {
             var employees = await _employeeService.GetAllEmployeesAsync();
-            return Ok();
+            return Ok(employees);
         }
 
         [HttpPost("Add employee")]
-        public async Task<IActionResult> AddEmployee(Employee employee)
+        public async Task<IActionResult> AddEmployee([FromBody] EmployeeRequest employeeRequest)
         {
-            await _employeeService.AddEmployeeAsync(employee);
+            await _employeeService.AddEmployeeAsync(employeeRequest);
             return Ok();
+
         }
 
         [HttpDelete("Delete employee")]

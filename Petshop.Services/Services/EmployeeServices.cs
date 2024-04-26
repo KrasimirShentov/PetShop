@@ -1,82 +1,103 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using PetShop.Petshop.Models;
+using PetShop.Petshop.Models.Petshop.Requests;
+using PetShop.Petshop.Models.Petshop.Responses;
+using PetShop.Petshop.Repositories.Interfaces;
+using PetShop.Petshop.Repositories.Repositories;
 using PetShop.Petshop.services.Interfaces;
 
 namespace PetShop.Petshop.services.Services
 {
-    public class EmployeeServices : IEmployeeService
+    public class EmployeeService : IEmployeeService
     {
-        private readonly IEmployeeService _employeeService;
+        private readonly IEmployeeReposity _employeeRepository;
 
-        public EmployeeServices(IEmployeeService employeeService)
+        public EmployeeService(IEmployeeReposity employeeRepository)
         {
-            _employeeService = employeeService;
-        }
-
-        public async Task AddEmployeeAsync(Employee employee)
-        {
-            try
-            {
-                await _employeeService.AddEmployeeAsync(employee);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error adding employee: {ex.Message}");
-            }
-        }
-
-        public async Task DeleteEmployeeAsync(int employeeId)
-        {
-            try
-            {
-                await _employeeService.DeleteEmployeeAsync(employeeId);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting employee: {ex.Message}");
-            }
+            _employeeRepository = employeeRepository;
         }
 
         public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
         {
-            try
-            {
-                return await _employeeService.GetAllEmployeesAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting all employees: {ex.Message}");
-                throw;
-            }
+            return await _employeeRepository.GetAllEmployeesAsync();
         }
 
-        public async Task<Employee> GetEmployeeByIdAsync(int employeeId)
+        public async Task<Employee> GetEmployeeByIdAsync(int emplyoeeID)
         {
-            try
-            {
-                return await _employeeService.GetEmployeeByIdAsync(employeeId);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting employee by ID: {ex.Message}");
-                throw;
-            }
+            return await _employeeRepository.GetEmployeeByIDAsync(emplyoeeID);
         }
 
-        public async Task UpdateEmployeeAsync(Employee employee)
+        public async Task<EmployeeResponse> AddEmployeeAsync(EmployeeRequest employeeRequest)
         {
-            try
+            var employee = await _employeeRepository.GetEmployeeByIDAsync(employeeRequest.EmployeeID);
+
+            if (employee != null)
             {
-                await _employeeService.UpdateEmployeeAsync(employee);
+                return new EmployeeResponse
+                {
+                    Employee = employee,
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Employee already exists"
+                };
             }
-            catch (Exception ex)
+
+            if (employeeRequest.EmployeeID <= 0)
             {
-                Console.WriteLine($"Error updating employee: {ex.Message}");
-                throw;
+                return new EmployeeResponse
+                {
+                    HttpStatusCode = HttpStatusCode.BadRequest,
+                    Message = "Employee ID must be greater than 0"
+                };
             }
+
+            var newEmployee = new Employee
+            {
+                EmployeeID = employeeRequest.EmployeeID,
+                EmployeeAge = employeeRequest.EmployeeAge,
+                EmployeeName = employeeRequest.EmployeeName,
+                EmployeeSurname = employeeRequest.EmployeeSurname,
+                EmployeePhone = employeeRequest.EmployeePhone,
+                JobTitle = employeeRequest.JobTitle,
+                HireDate = employeeRequest.HireDate,
+                VacationHours = employeeRequest.VacationHours,
+                SickLeaveHours = employeeRequest.SickLeaveHours,
+                ModifiedDate = employeeRequest.ModifiedDate,
+            };
+
+            var result = await _employeeRepository.AddEmployeeAsync(newEmployee);
+
+            return new EmployeeResponse
+            {
+                Employee = result,
+                HttpStatusCode = HttpStatusCode.OK,
+                Message = "Employee addded successfully"
+            };
+        }
+
+        public async Task<Employee> UpdateEmployeeAsync(Employee employee)
+        {
+            var existingEmployee = await _employeeRepository.GetEmployeeByIDAsync(employee.EmployeeID);
+            if (existingEmployee == null)
+            {
+                throw new Exception($"Employee with ID {employee.EmployeeID} not found");
+            }
+
+            existingEmployee.EmployeeName = employee.EmployeeName;
+            existingEmployee.EmployeeSurname = employee.EmployeeSurname;
+            existingEmployee.JobTitle = employee.JobTitle;
+            existingEmployee.VacationHours = employee.VacationHours;
+            existingEmployee.SickLeaveHours = employee.SickLeaveHours;
+
+            return await _employeeRepository.UpdateEmployeeAsync(existingEmployee);
+        }
+
+        public async Task DeleteEmployeeAsync(int employeeID)
+        {
+            await _employeeRepository.DeleteEmployeeAsync(employeeID);
         }
     }
 }
