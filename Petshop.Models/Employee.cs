@@ -7,29 +7,28 @@ namespace PetShop.Petshop.Models
         [Required]
         public int EmployeeID { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.FirstnameDisplay)]
+        [Required(ErrorMessage = DataValidation.FirstnameRequired)]
         public string EmployeeName { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.SurnameDisplay)]
+        [Required(ErrorMessage = DataValidation.SurnameRequired)]
 
         public string EmployeeSurname { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.PhoneDisplay)]
+        [Required(ErrorMessage = DataValidation.PhoneRequired)]
         public string EmployeePhone { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.AgeDisplay)]
+        [Required(ErrorMessage = DataValidation.AgeRequired)]
         public int EmployeeAge { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.JobtitleDisplay)]
+        [Required(ErrorMessage = DataValidation.JobtitleRequired)]
         public string JobTitle { get; set; }
-        
-        [Required]
         public DateTime HireDate { get; set; }
-        
-        [Required]
         public int VacationHours { get; set; }
-        
-        [Required]
         public int SickLeaveHours { get; set; }
         public DateTime ModifiedDate { get; set; }
     }

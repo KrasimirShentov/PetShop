@@ -14,10 +14,10 @@ namespace PetShop.Controllers
     public class IdentityUserController : ControllerBase
     {
         private readonly IIdentityService _identityService;
-        private readonly UserManager<UsersInfo> _userManager;
 
-        public async Task<IActionResult> CreateUser(UsersInfo usersInfo)
-        {
+        [HttpPost("/user")]
+        public async Task<IActionResult> CreateUser([FromQuery] UsersInfo usersInfo)
+        { 
             try
             {
                 var createUser = await _identityService.CreateAsync(usersInfo);
@@ -37,6 +37,7 @@ namespace PetShop.Controllers
             }
         }
 
+        [HttpPost("/Login")]
         public async Task<IActionResult> UserLogin(UserLoginRequest loginRequest)
         {
             try
@@ -50,60 +51,6 @@ namespace PetShop.Controllers
                 else
                 {
                     return Ok("Login successful");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        public async Task<IActionResult> UpdateUser(int userID, UsersInfo usersInfo)
-        {
-            try
-            {
-                if (userID != usersInfo.UserID)
-                {
-                    return BadRequest($"User with this ID {userID} cannot be found!");
-                }
-
-                var result = await _userManager.UpdateAsync(usersInfo);
-
-                if (result.Succeeded)
-                {
-                    return Ok("User's credentials has been updated successfully");
-                }
-                else
-                {
-                    return BadRequest(result.Errors);
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        public async Task<IActionResult> DeleteUser(string UserID)
-        {
-            try
-            {
-                var user = await _userManager.FindByIdAsync(UserID);
-
-                if (user == null)
-                {
-                    return BadRequest($"User with ID {UserID} not found!");
-                }
-
-                var result = await _userManager.DeleteAsync(user);
-
-                if (result.Succeeded)
-                {
-                    return Ok("User has been deleted successfully");
-                }
-                else
-                {
-                    return BadRequest(result.Errors);
                 }
             }
             catch (Exception ex)

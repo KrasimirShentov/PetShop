@@ -7,20 +7,21 @@ namespace PetShop.Petshop.Models
         [Required]
         public int UserID { get; set; }
 
-        [Required]
-        public string DisplayName { get; set; }
-
-        [Required]
+        [Display(Name = DataValidation.UsernameDisplay)]
+        [Required(ErrorMessage = DataValidation.UsernameRequired)]
+        [StringLength(DataValidation.UserNameMaxLength)]
         public string UserName { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.EmailDisplay)]
+        [Required(ErrorMessage = DataValidation.EmailRequired)]
+        [EmailAddress]
         public string Email { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.PasswordDisplay)]
+        [Required(ErrorMessage = DataValidation.PasswordRequired)]
+        [StringLength(DataValidation.PasswordMaxLength)]    
         public string Password { get; set; }
-
-        [Required]
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate = DateTime.Now;
 
     }
 }

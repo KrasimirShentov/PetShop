@@ -16,35 +16,13 @@ namespace PetShop.Controllers
     {
         private readonly IPetService _petService;
         private readonly ILogger<PetController> _logger;
-
-
-        private static readonly List<Pet> _testModels = new List<Pet>()
-        {
-            new Pet()
-            {
-                PetID = 1,
-                Breed = "Yorki",
-                Name = "Test1",
-                Age = 1,
-                PetType = (Petshop.Models.Enums.PetType)0,
-            },
-
-            new Pet()
-            {
-                PetID = 2,
-                Breed = "Persian",
-                Name = "Test2",
-                Age = 12,
-                PetType = (Petshop.Models.Enums.PetType)1
-            }
-        };
         public PetController(IPetService petService, ILogger<PetController> logger)
         {
             _petService = petService;
             _logger = logger;
         }
 
-        [HttpGet("Id")]
+        [HttpGet("{ID}")]
         public async Task<IActionResult> GetPetByID(int petID)
         {
             try
@@ -67,7 +45,7 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("/pets")]
 
         public async Task<IActionResult> GetAllPets()
         {
@@ -88,7 +66,7 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpPost("Add pet")]
+        [HttpPost("/pet")]
         public async Task<IActionResult> AddPet(PetRequest petRequest)
         {
             try
@@ -113,7 +91,7 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpPut("{ID}")]
+        [HttpPut("/pet")]
 
         public async Task<IActionResult> UpdatePet(int petID, PetRequest petRequest)
         {
@@ -147,7 +125,7 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpDelete("Delete pet")]
+        [HttpDelete("/pet")]
 
         public async Task<IActionResult> DeletePet(int petID)
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.HttpResults;
 using PetShop.Petshop.Models;
 using PetShop.Petshop.Models.Petshop.Requests;
 using PetShop.Petshop.Models.Petshop.Responses;
@@ -28,6 +29,12 @@ namespace PetShop.Petshop.services.Services
 
         public async Task<Employee> GetEmployeeByIdAsync(int emplyoeeID)
         {
+            var result = await _employeeRepository.GetEmployeeByIDAsync(emplyoeeID);
+
+            if (result == null)
+            {
+                throw new ArgumentNullException(nameof(result));
+            }
             return await _employeeRepository.GetEmployeeByIDAsync(emplyoeeID);
         }
 
@@ -83,7 +90,7 @@ namespace PetShop.Petshop.services.Services
             var existingEmployee = await _employeeRepository.GetEmployeeByIDAsync(employee.EmployeeID);
             if (existingEmployee == null)
             {
-                throw new Exception($"Employee with ID {employee.EmployeeID} not found");
+                throw new ArgumentNullException($"Employee with ID {employee.EmployeeID} not found");
             }
 
             existingEmployee.EmployeeName = employee.EmployeeName;

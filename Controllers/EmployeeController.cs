@@ -12,6 +12,18 @@ namespace PetShop.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
+        private readonly List<Employee> _employees = new List<Employee>()
+        {
+            new Employee()
+            {
+                EmployeeID = 1,
+                EmployeeName = "Test",
+                EmployeeAge = 10,
+                EmployeePhone = "0893595954",
+                EmployeeSurname = "Test",
+                JobTitle = "Test"
+            }
+        };
 
         public EmployeeController(IEmployeeService employeeRepository)
         {
@@ -21,41 +33,76 @@ namespace PetShop.Controllers
         [HttpGet("{employeeID}")]
         public async Task<IActionResult> GetEmployeeByIDAsync(int employeeID)
         {
-            var employee = await _employeeService.GetEmployeeByIdAsync(employeeID);
-            if (employee == null)
+            try
             {
-                return NotFound();
+                var employee = await _employeeService.GetEmployeeByIdAsync(employeeID);
+                if (employee == null)
+                {
+                    return NotFound();
+                }
+                return Ok(employee);
             }
-            return Ok(employee);
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        [HttpGet("Get all")]
+        [HttpGet("/employees")]
         public async Task<IActionResult> GetAllEmployees()
         {
-            var employees = await _employeeService.GetAllEmployeesAsync();
-            return Ok(employees);
+            try
+            {
+                var employees = await _employeeService.GetAllEmployeesAsync();
+                return Ok(employees);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        [HttpPost("Add employee")]
+        [HttpPost("/employee")]
         public async Task<IActionResult> AddEmployee([FromBody] EmployeeRequest employeeRequest)
         {
-            await _employeeService.AddEmployeeAsync(employeeRequest);
-            return Ok();
-
+            try
+            {
+                await _employeeService.AddEmployeeAsync(employeeRequest);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        [HttpDelete("Delete employee")]
+        [HttpDelete("/employee")]
         public async Task<IActionResult> DeleteEmployee(int employeeID)
         {
-            await _employeeService.DeleteEmployeeAsync(employeeID);
-            return Ok();
+            try
+            {
+
+                await _employeeService.DeleteEmployeeAsync(employeeID);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        [HttpPut("Update employee")]
+        [HttpPut("/employee")]
         public async Task<IActionResult> UpdateEmployee(Employee employee)
         {
-            await _employeeService.UpdateEmployeeAsync(employee);
-            return Ok();
+            try
+            {
+                await _employeeService.UpdateEmployeeAsync(employee);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

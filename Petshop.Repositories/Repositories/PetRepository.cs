@@ -16,7 +16,7 @@ namespace PetShop.Petshop.Repositories.Repositories
         {
             return await Task.FromResult(_pets.FirstOrDefault(x => x.PetID == petID));
         }
-        public async Task AddPetAsync(Pet pet)
+        public async Task<Pet> AddPetAsync(Pet pet)
         {
             if (pet == null)
             {
@@ -26,7 +26,7 @@ namespace PetShop.Petshop.Repositories.Repositories
             {
                 pet.PetID = _petID++;
                 _pets.Add(pet);
-                await Task.CompletedTask;
+                return pet;
             }
         }
 
@@ -45,7 +45,7 @@ namespace PetShop.Petshop.Repositories.Repositories
         }
 
 
-        public async Task UpdatePetAsync(Pet pet)
+        public async Task<Pet> UpdatePetAsync(Pet pet)
         {
             if (pet == null)
             {
@@ -60,7 +60,7 @@ namespace PetShop.Petshop.Repositories.Repositories
                     existingPet.Breed = pet.Breed;
                     existingPet.PetType = pet.PetType;
                     existingPet.Age = pet.Age;
-                    await Task.CompletedTask;
+                    return pet;
                 }
                 else
                 {

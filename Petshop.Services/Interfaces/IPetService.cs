@@ -1,4 +1,6 @@
 ﻿using PetShop.Petshop.Models;
+using PetShop.Petshop.Models.Petshop.Requests;
+using PetShop.Petshop.Models.Petshop.Responses;
 
 namespace PetShop.Petshop.services.Interfaces
 {
@@ -6,7 +8,7 @@ namespace PetShop.Petshop.services.Interfaces
     {
         Task<Pet> GetPetByIDAsync(int PetID);
         Task<IEnumerable<Pet>> GetAllPetsAsync();
-        Task<Pet> AddPetAsync(Pet pet);
+        Task<PetResponse> AddPetAsync(PetRequest petRequest);
         Task<Pet> UpdatePetAsync(Pet pet);
         Task DeletePetAsync(int PetID);
     }

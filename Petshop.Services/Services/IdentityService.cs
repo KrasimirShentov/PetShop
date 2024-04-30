@@ -18,49 +18,31 @@ namespace PetShop.Petshop.services.Services
 
         public async Task<UsersInfo?> CheckUserAndPass(string userName, string password)
         {
-            try
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user != null && await _userManager.CheckPasswordAsync(user, password))
             {
-                var user = await _userManager.FindByNameAsync(userName);
-                if (user != null && await _userManager.CheckPasswordAsync(user, password))
-                {
-                    return user;
-                }
-                else
-                {
-                    return null;
-                }
+                return user;
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error checking user credentials: {ex.Message}");
-                throw;
+                return null;
             }
         }
 
         public async Task<IdentityResult> CreateAsync(UsersInfo user)
         {
-            try
+            var newUser = await _userManager.GetUserIdAsync(user);
+
+            if (string.IsNullOrEmpty(newUser))
             {
                 return await _userManager.CreateAsync(user);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating user: {ex.Message}");
-                throw;
-            }
+            return IdentityResult.Failed();
         }
 
         public async Task<IEnumerable<string>> GetUserRoles(UsersInfo user)
         {
-            try
-            {
-                return await _userManager.GetRolesAsync(user);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting user roles: {ex.Message}");
-                throw;
-            }
+            return await _userManager.GetRolesAsync(user);
         }
     }
 }

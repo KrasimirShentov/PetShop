@@ -16,7 +16,7 @@ namespace PetShop.Petshop.Repositories.Repositories
         {
             return await Task.FromResult(_users.FirstOrDefault(x => x.UserID == userID));
         }
-        public async Task AddUsertAsync(UsersInfo user)
+        public async Task<UsersInfo> AddUsertAsync(UsersInfo user)
         {
             if (user == null)
             {
@@ -26,7 +26,7 @@ namespace PetShop.Petshop.Repositories.Repositories
             {
                 user.UserID = _userID++;
                 _users.Add(user);
-                await Task.CompletedTask;
+                return user;
             }
         }
 
@@ -45,7 +45,7 @@ namespace PetShop.Petshop.Repositories.Repositories
         }
 
 
-        public async Task UpdateUserAsync(UsersInfo user)
+        public async Task<UsersInfo> UpdateUserAsync(UsersInfo user)
         {
             if (user == null)
             {
@@ -54,14 +54,11 @@ namespace PetShop.Petshop.Repositories.Repositories
             else
             {
                 var existingUser = await GetUserByIDAsync(user.UserID);
-                if (existingUser != null)
-                {
-                    existingUser.UserID = user.UserID;
-                    existingUser.UserName = user.UserName;
-                    existingUser.Password = user.Password;
-                    existingUser.Email = user.Email;
-                    existingUser.DisplayName = user.DisplayName;
-                }
+                existingUser.UserID = user.UserID;
+                existingUser.UserName = user.UserName;
+                existingUser.Password = user.Password;
+                existingUser.Email = user.Email;
+                return user;
             }
         }
     }

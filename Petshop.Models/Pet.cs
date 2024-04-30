@@ -5,19 +5,24 @@ namespace PetShop.Petshop.Models
 {
     public class Pet
     {
-        [Required]
+        [Display(Name = DataValidation.PetAgeDisplay)]
+        [Required(ErrorMessage = DataValidation.PetAgeRequired)]
         public int PetID { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.BreedDisplay)]
+        [Required(ErrorMessage = DataValidation.BreedRequired)]
         public string Breed { get; set; }
         
-        [Required]
+        [Display(Name = DataValidation.PetnameDisplay)]
+        [Required(ErrorMessage = DataValidation.PetnameRequired)]
         public string Name { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.PetAgeDisplay)]
+        [Required(ErrorMessage = DataValidation.PetAgeRequired)]
         public int Age { get; set; }
 
-        [Required]
+        [Display(Name = DataValidation.PetTypeDisplay)]
+        [Required(ErrorMessage = DataValidation.PetTypeRequired)]
         public PetType PetType { get; set; }
 
     }

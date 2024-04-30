@@ -44,7 +44,7 @@ namespace PetShop.Petshop.Repositories.Repositories
             else
             {
 
-                throw new ArgumentNullException("Employee with this ID does not exist");
+                throw new ArgumentNullException($"Employee with this ID: {employeeID} does not exist");
             }
         }
 
