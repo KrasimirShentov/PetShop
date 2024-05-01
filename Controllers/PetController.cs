@@ -6,6 +6,7 @@ using PetShop.Petshop.Models;
 using PetShop.Petshop.Models.Petshop.Requests;
 using PetShop.Petshop.Models.Petshop.Responses;
 using PetShop.Petshop.services.Interfaces;
+using PetShop.Petshop.services.Services;
 using System.Diagnostics.Eventing.Reader;
 
 namespace PetShop.Controllers
@@ -27,21 +28,16 @@ namespace PetShop.Controllers
         {
             try
             {
-                var petByID = await _petService.GetPetByIDAsync(petID);
-                if (petByID == null)
+                var pet = await _petService.GetPetByIDAsync(petID);
+                if (pet == null)
                 {
-                    _logger.LogError($"Pet with ID: {petID} does not exist!");
                     return NotFound();
                 }
-                else
-                {
-                    return Ok(new PetResponse { Pet = petByID });
-                }
+                return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error retrieving pet with ID: {petID}");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -51,18 +47,12 @@ namespace PetShop.Controllers
         {
             try
             {
-                var pets = await _petService.GetAllPetsAsync();
-                var petResponse = new List<PetResponse>();
-                foreach (var pet in pets)
-                {
-                    petResponse.Add(new PetResponse { Pet = pet });
-                }
-                return Ok(petResponse);
+                var pet = await _petService.GetAllPetsAsync();
+                return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving all pets!");
-                return StatusCode(500, $"Internal server error: {ex.Message}!");
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -71,57 +61,27 @@ namespace PetShop.Controllers
         {
             try
             {
-                var pet = new Pet
-                {
-                    PetID = petRequest.PetID,
-                    Breed = petRequest.Breed,
-                    Name = petRequest.Name,
-                    Age = petRequest.Age,
-                    PetType = petRequest.PetType,
-                };
-
-                var createPet = await _petService.AddPetAsync(pet);
-                var response = new PetResponse { Pet = createPet };
-                return Created("", createPet);
+                await _petService.AddPetAsync(petRequest);
+                return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating pet!");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ex.Message);
             }
         }
 
         [HttpPut("/pet")]
 
-        public async Task<IActionResult> UpdatePet(int petID, PetRequest petRequest)
+        public async Task<IActionResult> UpdatePet(int petID, Pet pet)
         {
             try
             {
-                var petToUpdate = await _petService.GetPetByIDAsync(petID);
-
-                if (petToUpdate == null)
-                {
-                    _logger.LogInformation($"Pet with ID: {petID} does not exist");
-                    return StatusCode(500, "Internal server error");
-                }
-                else
-                {
-                    petToUpdate = new Pet
-                    {
-                        PetID = petRequest.PetID,
-                        Breed = petRequest.Breed,
-                        Name = petRequest.Name,
-                        Age = petRequest.Age,
-                        PetType = petRequest.PetType
-                    };
-                }
-
-                return NoContent();
+                await _petService.UpdatePetAsync(pet);
+                return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error updating pet with ID {petID}");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -129,19 +89,16 @@ namespace PetShop.Controllers
 
         public async Task<IActionResult> DeletePet(int petID)
         {
-            var pet = await _petService.GetPetByIDAsync(petID);
+            try
+            {
 
-            if (pet == null)
-            {
-                _logger.LogInformation($"Pet with ID {petID} not found");
-                return NotFound($"Pet with ID {petID} not found");
-            }
-            else
-            {
                 await _petService.DeletePetAsync(petID);
+                return Ok();
             }
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
