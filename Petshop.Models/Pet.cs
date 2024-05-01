@@ -5,8 +5,7 @@ namespace PetShop.Petshop.Models
 {
     public class Pet
     {
-        [Display(Name = DataValidation.PetAgeDisplay)]
-        [Required(ErrorMessage = DataValidation.PetAgeRequired)]
+        [Key]
         public int PetID { get; set; }
 
         [Display(Name = DataValidation.BreedDisplay)]

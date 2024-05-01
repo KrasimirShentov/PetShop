@@ -4,7 +4,7 @@ namespace PetShop.Petshop.Models
 {
     public class Employee
     {
-        [Required]
+        [Key]
         public int EmployeeID { get; set; }
 
         [Display(Name = DataValidation.FirstnameDisplay)]

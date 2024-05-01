@@ -4,7 +4,7 @@ namespace PetShop.Petshop.Models
 {
     public class UsersInfo
     {
-        [Required]
+        [Key]
         public int UserID { get; set; }
 
         [Display(Name = DataValidation.UsernameDisplay)]
