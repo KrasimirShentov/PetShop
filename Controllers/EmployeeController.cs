@@ -12,19 +12,6 @@ namespace PetShop.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
-        private readonly List<Employee> _employees = new List<Employee>()
-        {
-            new Employee()
-            {
-                EmployeeID = 1,
-                EmployeeName = "Test",
-                EmployeeAge = 10,
-                EmployeePhone = "0893595954",
-                EmployeeSurname = "Test",
-                JobTitle = "Test"
-            }
-        };
-
         public EmployeeController(IEmployeeService employeeRepository)
         {
             _employeeService = employeeRepository;
@@ -36,10 +23,6 @@ namespace PetShop.Controllers
             try
             {
                 var employee = await _employeeService.GetEmployeeByIdAsync(employeeID);
-                if (employee == null)
-                {
-                    return NotFound();
-                }
                 return Ok(employee);
             }
             catch (Exception ex)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using PetShop.Petshop.Models;
 using PetShop.Petshop.Models.Petshop.Requests;
 using PetShop.Petshop.Models.Petshop.Responses;
@@ -16,10 +17,12 @@ namespace PetShop.Petshop.services.Services
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeReposity _employeeRepository;
+        private readonly PetshopDB _dbContext;
 
-        public EmployeeService(IEmployeeReposity employeeRepository)
+        public EmployeeService(IEmployeeReposity employeeRepository, PetshopDB dbContext)
         {
             _employeeRepository = employeeRepository;
+            _dbContext = dbContext;
         }
 
         public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
@@ -61,31 +64,19 @@ namespace PetShop.Petshop.services.Services
                 };
             }
 
-            var newEmployee = new Employee
-            {
-                EmployeeID = employeeRequest.EmployeeID,
-                EmployeeAge = employeeRequest.EmployeeAge,
-                EmployeeName = employeeRequest.EmployeeName,
-                EmployeeSurname = employeeRequest.EmployeeSurname,
-                EmployeePhone = employeeRequest.EmployeePhone,
-                JobTitle = employeeRequest.JobTitle,
-                HireDate = employeeRequest.HireDate,
-                VacationHours = employeeRequest.VacationHours,
-                SickLeaveHours = employeeRequest.SickLeaveHours,
-                ModifiedDate = employeeRequest.ModifiedDate,
-            };
-
-            var result = await _employeeRepository.AddEmployeeAsync(newEmployee);
+            var newEmployee = MapRequestToEmployee(employeeRequest);
+            _dbContext.employees.Add(newEmployee);
+            await _dbContext.SaveChangesAsync();
 
             return new EmployeeResponse
             {
-                Employee = result,
+                Employee = newEmployee,
                 HttpStatusCode = HttpStatusCode.OK,
                 Message = "Employee addded successfully"
             };
         }
 
-        public async Task<Employee> UpdateEmployeeAsync(Employee employee)
+        public async Task UpdateEmployeeAsync(Employee employee)
         {
             var existingEmployee = await _employeeRepository.GetEmployeeByIDAsync(employee.EmployeeID);
             if (existingEmployee == null)
@@ -99,12 +90,29 @@ namespace PetShop.Petshop.services.Services
             existingEmployee.VacationHours = employee.VacationHours;
             existingEmployee.SickLeaveHours = employee.SickLeaveHours;
 
-            return await _employeeRepository.UpdateEmployeeAsync(existingEmployee);
+            await _employeeRepository.UpdateEmployeeAsync(existingEmployee);
         }
 
         public async Task DeleteEmployeeAsync(int employeeID)
         {
             await _employeeRepository.DeleteEmployeeAsync(employeeID);
+        }
+
+        private Employee MapRequestToEmployee(EmployeeRequest employeeRequest)
+        {
+            return new Employee
+            {
+                EmployeeID = employeeRequest.EmployeeID,
+                EmployeeName = employeeRequest.EmployeeName,
+                EmployeeSurname = employeeRequest.EmployeeSurname,
+                EmployeePhone = employeeRequest.EmployeePhone,
+                EmployeeAge = employeeRequest.EmployeeAge,
+                JobTitle = employeeRequest.JobTitle,
+                HireDate = employeeRequest.HireDate,
+                VacationHours = employeeRequest.VacationHours,
+                SickLeaveHours = employeeRequest.SickLeaveHours,
+                ModifiedDate = employeeRequest.ModifiedDate
+            };
         }
     }
 }

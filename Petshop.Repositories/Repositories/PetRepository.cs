@@ -6,7 +6,6 @@ namespace PetShop.Petshop.Repositories.Repositories
     public class PetRepository : IPetRepository
     {
         private readonly List<Pet> _pets;
-        private int _petID = 0;
         public async Task<IEnumerable<Pet>> GetAllPetAsync()
         {
             return await Task.FromResult(_pets);
@@ -18,16 +17,8 @@ namespace PetShop.Petshop.Repositories.Repositories
         }
         public async Task<Pet> AddPetAsync(Pet pet)
         {
-            if (pet == null)
-            {
-                throw new ArgumentNullException(nameof(pet));
-            }
-            else
-            {
-                pet.PetID = _petID++;
-                _pets.Add(pet);
-                return pet;
-            }
+            _pets.Add(pet);
+            return pet;
         }
 
         public async Task DeletePetAsync(int petID)

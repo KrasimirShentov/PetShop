@@ -6,7 +6,6 @@ namespace PetShop.Petshop.Repositories.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly List<UsersInfo> _users;
-        private int _userID = 0;
         public async Task<IEnumerable<UsersInfo>> GetAllUserAsync()
         {
             return await Task.FromResult(_users);
@@ -18,16 +17,8 @@ namespace PetShop.Petshop.Repositories.Repositories
         }
         public async Task<UsersInfo> AddUsertAsync(UsersInfo user)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-            else
-            {
-                user.UserID = _userID++;
-                _users.Add(user);
-                return user;
-            }
+            _users.Add(user);
+            return user;
         }
 
         public async Task DeleteUsertAsync(int userID)
