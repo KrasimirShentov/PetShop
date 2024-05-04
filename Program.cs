@@ -1,13 +1,20 @@
+using PetShop.Extentions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 //builder.Services.AddRazorPages();
 
 
-builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+builder.Services.RegisterRepositories()
+                .RegisterServices();
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
