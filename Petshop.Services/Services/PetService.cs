@@ -14,10 +14,12 @@ namespace PetShop.Petshop.services.Services
     public class PetService : IPetService
     {
         private readonly IPetRepository _petRepository;
+        private readonly PetshopDB _dbContext;
 
-        public PetService(IPetRepository petRepository)
+        public PetService(IPetRepository petRepository, PetshopDB dbContext)
         {
             _petRepository = petRepository;
+            _dbContext = dbContext;
         }
 
         public async Task<IEnumerable<Pet>> GetAllPetsAsync()
@@ -46,11 +48,12 @@ namespace PetShop.Petshop.services.Services
                 {
                     Pet = pet,
                     HttpStatusCode = HttpStatusCode.BadRequest,
-                    Message = "Pet alreadt exists"
+                    Message = "Pet already exists"
                 };
             }
 
-            if (pet.PetID <= 0)
+
+            if (petRequest.PetID <= 0)
             {
                 return new PetResponse
                 {
@@ -59,24 +62,18 @@ namespace PetShop.Petshop.services.Services
                 };
             }
 
-            var newPet = new Pet
-            {
-                PetID = pet.PetID,
-                Name = pet.Name,
-                Age = pet.Age,
-                Breed = pet.Breed,
-                PetType = pet.PetType,
-            };
-
-            var result = await _petRepository.AddPetAsync(newPet);
+            var newPet = MapRequestToPet(petRequest);
+            _dbContext.pets.Add(newPet);
+            await _dbContext.SaveChangesAsync();
 
             return new PetResponse
             {
-                Pet = result,
+                Pet = newPet,
                 HttpStatusCode = HttpStatusCode.OK,
-                Message = "Successfully added ne pet"
+                Message = "Successfully added new pet"
             };
         }
+
 
         public async Task DeletePetAsync(int petId)
         {
@@ -84,7 +81,7 @@ namespace PetShop.Petshop.services.Services
         }
 
 
-        public async Task<Pet> UpdatePetAsync(Pet pet)
+        public async Task UpdatePetAsync(Pet pet)
         {
             var result = await _petRepository.GetPetByIDAsync(pet.PetID);
 
@@ -99,7 +96,19 @@ namespace PetShop.Petshop.services.Services
             result.Breed = pet.Breed;
             result.PetType = pet.PetType;
 
-            return await _petRepository.UpdatePetAsync(pet);
+            await _petRepository.UpdatePetAsync(result);
         }
+        private Pet MapRequestToPet(PetRequest petRequest)
+        {
+            return new Pet
+            {
+                PetID = petRequest.PetID,
+                Breed = petRequest.Breed,
+                Name = petRequest.Name,
+                Age = petRequest.Age,
+                PetType = petRequest.PetType
+            };
+        }
+
     }
 }

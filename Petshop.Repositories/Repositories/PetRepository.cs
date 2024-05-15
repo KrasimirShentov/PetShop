@@ -1,23 +1,29 @@
-﻿using PetShop.Petshop.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using PetShop.Petshop.Models;
 using PetShop.Petshop.Repositories.Interfaces;
 
 namespace PetShop.Petshop.Repositories.Repositories
 {
     public class PetRepository : IPetRepository
     {
-        private readonly List<Pet> _pets;
+        private readonly PetshopDB _dbContext;
+        public PetRepository(PetshopDB dbContext)
+        {
+            _dbContext = dbContext;
+        }
         public async Task<IEnumerable<Pet>> GetAllPetAsync()
         {
-            return await Task.FromResult(_pets);
+            return await _dbContext.pets.ToListAsync();
         }
 
         public async Task<Pet> GetPetByIDAsync(int petID)
         {
-            return await Task.FromResult(_pets.FirstOrDefault(x => x.PetID == petID));
+            return await _dbContext.pets.FindAsync(petID);
         }
         public async Task<Pet> AddPetAsync(Pet pet)
         {
-            _pets.Add(pet);
+            _dbContext.pets.Add(pet);
+            _dbContext.SaveChangesAsync();
             return pet;
         }
 
@@ -26,8 +32,8 @@ namespace PetShop.Petshop.Repositories.Repositories
             var petToDelete = await GetPetByIDAsync(petID);
             if (petToDelete != null)
             {
-                _pets.Remove(petToDelete);
-                await Task.CompletedTask;
+                _dbContext.pets.Remove(petToDelete);
+                await _dbContext.SaveChangesAsync();
             }
             else
             {
@@ -36,28 +42,10 @@ namespace PetShop.Petshop.Repositories.Repositories
         }
 
 
-        public async Task<Pet> UpdatePetAsync(Pet pet)
+        public async Task UpdatePetAsync(Pet pet)
         {
-            if (pet == null)
-            {
-                throw new ArgumentNullException(nameof(pet));
-            }
-            else
-            {
-                var existingPet = await GetPetByIDAsync(pet.PetID);
-                if (existingPet != null)
-                {
-                    existingPet.PetID = pet.PetID;
-                    existingPet.Breed = pet.Breed;
-                    existingPet.PetType = pet.PetType;
-                    existingPet.Age = pet.Age;
-                    return pet;
-                }
-                else
-                {
-                    throw new ArgumentException($"Pet with ID {pet.PetID} does not exist");
-                }
-            }
+            _dbContext.Entry(pet).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

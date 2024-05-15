@@ -3,18 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using PetShop.Petshop.Models;
 using PetShop.Petshop.Models.Petshop.Responses;
 using PetShop.Petshop.services.Interfaces;
-using System.Net;
 
 namespace PetShop.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/addWorkers")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
-        public EmployeeController(IEmployeeService employeeRepository)
+        public EmployeeController(IEmployeeService employeeService)
         {
-            _employeeService = employeeRepository;
+            _employeeService = employeeService;
         }
 
         [HttpGet("{employeeID}")]
@@ -31,7 +30,7 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpGet("/employees")]
+        [HttpGet]
         public async Task<IActionResult> GetAllEmployees()
         {
             try
@@ -45,7 +44,7 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpPost("/employee")]
+        [HttpPost]
         public async Task<IActionResult> AddEmployee([FromBody] EmployeeRequest employeeRequest)
         {
             try
@@ -59,7 +58,7 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpDelete("/employee")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteEmployee(int employeeID)
         {
             try
@@ -74,13 +73,13 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpPut("/employee")]
+        [HttpPut]
         public async Task<IActionResult> UpdateEmployee(Employee employee)
         {
             try
             {
                 await _employeeService.UpdateEmployeeAsync(employee);
-                return Ok();
+                return Ok(employee);
             }
             catch (Exception ex)
             {

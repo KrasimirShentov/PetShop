@@ -33,7 +33,7 @@ namespace PetShop.Controllers
                 {
                     return NotFound();
                 }
-                return Ok();
+                return Ok(pet);
             }
             catch (Exception ex)
             {
@@ -41,14 +41,14 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpGet("/pets")]
+        [HttpGet]
 
         public async Task<IActionResult> GetAllPets()
         {
             try
             {
-                var pet = await _petService.GetAllPetsAsync();
-                return Ok();
+                var pets = await _petService.GetAllPetsAsync();
+                return Ok(pets);
             }
             catch (Exception ex)
             {
@@ -56,13 +56,13 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpPost("/pet")]
+        [HttpPost]
         public async Task<IActionResult> AddPet(PetRequest petRequest)
         {
             try
             {
                 await _petService.AddPetAsync(petRequest);
-                return Ok();
+                return Ok(petRequest);
             }
             catch (Exception ex)
             {
@@ -70,14 +70,14 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpPut("/pet")]
+        [HttpPut]
 
         public async Task<IActionResult> UpdatePet(int petID, Pet pet)
         {
             try
             {
                 await _petService.UpdatePetAsync(pet);
-                return Ok();
+                return Ok(pet);
             }
             catch (Exception ex)
             {
@@ -85,7 +85,7 @@ namespace PetShop.Controllers
             }
         }
 
-        [HttpDelete("/pet")]
+        [HttpDelete]
 
         public async Task<IActionResult> DeletePet(int petID)
         {

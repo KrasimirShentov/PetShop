@@ -1,20 +1,42 @@
-using PetShop.Extentions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using PetShop.Petshop.Models;
+using PetShop.Petshop.Repositories.Interfaces;
+using PetShop.Petshop.Repositories.Repositories;
+using PetShop.Petshop.services.Interfaces;
+using PetShop.Petshop.services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//builder.Services.AddRazorPages();
+builder.Configuration.AddJsonFile("appsettings.json");
+
+//builder.Services.AddEndpointsApiExplorer();
 
 
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<PetshopDB>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("Petshop");
+    options.UseNpgsql(connectionString);
+});
 
+//Configure ASP.NET Core Identity
+//.AddEntityFrameworkStores<PetshopDB>();
 
-builder.Services.RegisterRepositories()
-                .RegisterServices();
+//Repositories
+builder.Services.AddTransient<IEmployeeReposity, EmployeeRepository>();
+builder.Services.AddTransient<IPetRepository, PetRepository>();
+//builder.Services.AddTransient<IUserRepository, UserRepository>();
+
+//Services
+//builder.Services.AddTransient<IIdentityService, IdentityService>();
+builder.Services.AddTransient<IEmployeeService, EmployeeService>();
+builder.Services.AddTransient<IPetService, PetService>();
 
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -22,7 +44,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -38,7 +59,6 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-
-//app.MapRazorPages();
+app.MapControllers();
 
 app.Run();
