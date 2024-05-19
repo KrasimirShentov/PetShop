@@ -8,7 +8,7 @@ namespace PetShop.Petshop.services.Interfaces
     {
         Task<Pet> GetPetByIDAsync(int PetID);
         Task<IEnumerable<Pet>> GetAllPetsAsync();
-        Task<PetResponse> AddPetAsync(PetRequest petRequest);
+        Task<Pet> AddPetAsync(PetRequest petRequest);
         Task UpdatePetAsync(Pet pet);
         Task DeletePetAsync(int PetID);
     }

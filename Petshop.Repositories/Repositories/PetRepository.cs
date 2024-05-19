@@ -23,22 +23,14 @@ namespace PetShop.Petshop.Repositories.Repositories
         public async Task<Pet> AddPetAsync(Pet pet)
         {
             _dbContext.pets.Add(pet);
-            _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
             return pet;
         }
 
-        public async Task DeletePetAsync(int petID)
+        public async Task DeletePetAsync(Pet petToDelete)
         {
-            var petToDelete = await GetPetByIDAsync(petID);
-            if (petToDelete != null)
-            {
                 _dbContext.pets.Remove(petToDelete);
                 await _dbContext.SaveChangesAsync();
-            }
-            else
-            {
-                throw new ArgumentNullException($"Employee with this ID {petID} does not exist");
-            }
         }
 
 

@@ -8,6 +8,6 @@ namespace PetShop.Petshop.Repositories.Interfaces
         Task<IEnumerable<Pet>> GetAllPetAsync();
         Task<Pet> AddPetAsync(Pet pet);
         Task UpdatePetAsync(Pet pet);
-        Task DeletePetAsync(int id);
+        Task DeletePetAsync(Pet petToDelete);
     }
 }

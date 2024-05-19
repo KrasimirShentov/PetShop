@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using PetShop.Petshop.services.Interfaces;
-using PetShop.Petshop.Models;
-using PetShop.Petshop.Repositories.Interfaces;
-using System.Diagnostics.CodeAnalysis;
-using PetShop.Petshop.Models.Petshop.Responses;
+﻿using PetShop.Petshop.Models;
 using PetShop.Petshop.Models.Petshop.Requests;
+using PetShop.Petshop.Models.Petshop.Responses;
+using PetShop.Petshop.Repositories.Interfaces;
+using PetShop.Petshop.services.Interfaces;
 using System.Net;
 
 namespace PetShop.Petshop.services.Services
@@ -38,46 +34,42 @@ namespace PetShop.Petshop.services.Services
 
             return await _petRepository.GetPetByIDAsync(petId);
         }
-        public async Task<PetResponse> AddPetAsync(PetRequest petRequest)
+        public async Task<Pet> AddPetAsync(PetRequest petRequest)
         {
             var pet = await _petRepository.GetPetByIDAsync(petRequest.PetID);
 
             if (pet != null)
             {
-                return new PetResponse
-                {
-                    Pet = pet,
-                    HttpStatusCode = HttpStatusCode.BadRequest,
-                    Message = "Pet already exists"
-                };
+                throw new InvalidOperationException($"Pet with ID: {pet.PetID} already exists!");
             }
 
 
             if (petRequest.PetID <= 0)
             {
-                return new PetResponse
-                {
-                    HttpStatusCode = HttpStatusCode.BadRequest,
-                    Message = "Pet ID must be greater than 0"
-                };
+                throw new ArgumentException("Pet ID must be greater than 0");
             }
 
             var newPet = MapRequestToPet(petRequest);
             _dbContext.pets.Add(newPet);
             await _dbContext.SaveChangesAsync();
 
-            return new PetResponse
-            {
-                Pet = newPet,
-                HttpStatusCode = HttpStatusCode.OK,
-                Message = "Successfully added new pet"
-            };
+
+            return newPet;
         }
 
 
-        public async Task DeletePetAsync(int petId)
+        public async Task DeletePetAsync(int petID)
         {
-            await _petRepository.DeletePetAsync(petId);
+            var petToDelete = await GetPetByIDAsync(petID);
+            if (petToDelete != null)
+            {
+                _dbContext.pets.Remove(petToDelete);
+                await _dbContext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new ArgumentNullException($"Employee with this ID {petID} does not exist");
+            }
         }
 
 

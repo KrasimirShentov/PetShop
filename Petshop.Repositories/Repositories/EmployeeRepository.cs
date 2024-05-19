@@ -25,26 +25,15 @@ namespace PetShop.Petshop.Repositories.Repositories
         public async Task<Employee> AddEmployeeAsync(Employee employee)
         {
             _dbContext.employees.Add(employee);
-            _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
             return employee;
 
         }
-
-        public async Task DeleteEmployeeAsync(int employeeID)
+        public async Task DeleteEmployeeAsync(Employee employeeToDelete)
         {
-            var employeeToDelete = await GetEmployeeByIDAsync(employeeID);
-            if (employeeToDelete != null)
-            {
-                _dbContext.employees.Remove(employeeToDelete);
-                await _dbContext.SaveChangesAsync();
-            }
-            else
-            {
-                throw new ArgumentNullException($"Employee with this ID: {employeeID} does not exist");
-            }
+            _dbContext.employees.Remove(employeeToDelete);
+            await _dbContext.SaveChangesAsync();
         }
-
-
         public async Task UpdateEmployeeAsync(Employee employee)
         {
             _dbContext.Entry(employee).State = EntityState.Modified;
