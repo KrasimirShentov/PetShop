@@ -8,7 +8,7 @@ namespace PetShop.Petshop.services.Interfaces
     {
         Task<IEnumerable<Employee>> GetAllEmployeesAsync();
         Task<Employee> GetEmployeeByIdAsync(int employeeId);
-        Task<EmployeeResponse> AddEmployeeAsync(EmployeeRequest employeeRequest);
+        Task<Employee> AddEmployeeAsync(EmployeeRequest employeeRequest);
         Task UpdateEmployeeAsync(Employee employee);
         Task DeleteEmployeeAsync(int employeeId);
     }

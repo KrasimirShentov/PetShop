@@ -5,7 +5,7 @@ using PetShop.Petshop.services.Interfaces;
 
 namespace PetShop.Controllers
 {
-    [Route("api/addWorkers")]
+    [Route("api/[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase
     {
@@ -51,9 +51,17 @@ namespace PetShop.Controllers
                 await _employeeService.AddEmployeeAsync(employeeRequest);
                 return Ok();
             }
+            catch (ArgumentException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -66,9 +74,9 @@ namespace PetShop.Controllers
                 await _employeeService.DeleteEmployeeAsync(employeeID);
                 return Ok();
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
-                return StatusCode(500, ex.Message);
+                return Forbid(ex.Message);
             }
         }
 
@@ -80,9 +88,9 @@ namespace PetShop.Controllers
                 await _employeeService.UpdateEmployeeAsync(employee);
                 return Ok(employee);
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
-                return StatusCode(500, ex.Message);
+                return Forbid(ex.Message);
             }
         }
     }

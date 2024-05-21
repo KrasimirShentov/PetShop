@@ -76,7 +76,7 @@ namespace PetShop.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return Forbid(ex.Message);
             }
         }
 
@@ -92,7 +92,7 @@ namespace PetShop.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return Forbid(ex.Message);
             }
         }
     }

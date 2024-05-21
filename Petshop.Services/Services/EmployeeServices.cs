@@ -34,39 +34,25 @@ namespace PetShop.Petshop.services.Services
             return await _employeeRepository.GetEmployeeByIDAsync(emplyoeeID);
         }
 
-        public async Task<EmployeeResponse> AddEmployeeAsync(EmployeeRequest employeeRequest)
+        public async Task<Employee> AddEmployeeAsync(EmployeeRequest employeeRequest)
         {
             var employee = await _employeeRepository.GetEmployeeByIDAsync(employeeRequest.EmployeeID);
 
             if (employee != null)
             {
-                return new EmployeeResponse
-                {
-                    Employee = employee,
-                    HttpStatusCode = HttpStatusCode.BadRequest,
-                    Message = "Employee already exists"
-                };
+                throw new InvalidOperationException($"Employee with ID: {employee.EmployeeID} does not exist");
             }
 
             if (employeeRequest.EmployeeID <= 0)
             {
-                return new EmployeeResponse
-                {
-                    HttpStatusCode = HttpStatusCode.BadRequest,
-                    Message = "Employee ID must be greater than 0"
-                };
+                throw new ArgumentException($"Employee ID must be greater than 0");
             }
 
             var newEmployee = MapRequestToEmployee(employeeRequest);
             _dbContext.employees.Add(newEmployee);
             await _dbContext.SaveChangesAsync();
 
-            return new EmployeeResponse
-            {
-                Employee = newEmployee,
-                HttpStatusCode = HttpStatusCode.OK,
-                Message = "Employee addded successfully"
-            };
+            return newEmployee;
         }
 
         public async Task UpdateEmployeeAsync(Employee employee)
@@ -74,7 +60,7 @@ namespace PetShop.Petshop.services.Services
             var existingEmployee = await _employeeRepository.GetEmployeeByIDAsync(employee.EmployeeID);
             if (existingEmployee == null)
             {
-                throw new ArgumentNullException($"Employee with ID {employee.EmployeeID} not found");
+                throw new InvalidOperationException($"Employee with ID {employee.EmployeeID} not found");
             }
 
             existingEmployee.EmployeeName = employee.EmployeeName;
@@ -96,7 +82,7 @@ namespace PetShop.Petshop.services.Services
             }
             else
             {
-                throw new ArgumentNullException($"Employee with this ID: {employeeID} does not exist");
+                throw new InvalidOperationException($"Employee with this ID: {employeeID} does not exist");
             }
         }
 

@@ -68,7 +68,7 @@ namespace PetShop.Petshop.services.Services
             }
             else
             {
-                throw new ArgumentNullException($"Employee with this ID {petID} does not exist");
+                throw new InvalidOperationException($"Pet with this ID {petID} does not exist");
             }
         }
 
@@ -79,7 +79,7 @@ namespace PetShop.Petshop.services.Services
 
             if (result == null)
             {
-                throw new ArgumentNullException($"Pet with ID: {pet.PetID} does not exist");
+                throw new InvalidOperationException($"Pet with ID: {pet.PetID} does not exist");
             }
 
             result.PetID = pet.PetID;
