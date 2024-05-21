@@ -1,5 +1,4 @@
 ﻿using PetShop.Petshop.Models;
-using PetShop.Petshop.Models.Petshop.Requests;
 using PetShop.Petshop.Models.Petshop.Responses;
 
 namespace PetShop.Petshop.services.Interfaces

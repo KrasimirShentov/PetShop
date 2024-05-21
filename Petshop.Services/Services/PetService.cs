@@ -1,9 +1,7 @@
 ﻿using PetShop.Petshop.Models;
-using PetShop.Petshop.Models.Petshop.Requests;
 using PetShop.Petshop.Models.Petshop.Responses;
 using PetShop.Petshop.Repositories.Interfaces;
 using PetShop.Petshop.services.Interfaces;
-using System.Net;
 
 namespace PetShop.Petshop.services.Services
 {
@@ -44,9 +42,9 @@ namespace PetShop.Petshop.services.Services
             }
 
 
-            if (petRequest.PetID <= 0)
+            if (petRequest.PetID < 0)
             {
-                throw new ArgumentException("Pet ID must be greater than 0");
+                throw new ArgumentException("Pet ID must not be less than 0");
             }
 
             var newPet = MapRequestToPet(petRequest);

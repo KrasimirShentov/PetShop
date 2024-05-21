@@ -1,9 +1,8 @@
-﻿using PetShop.Petshop.Models;
-using PetShop.Petshop.Models.Petshop.Requests;
+﻿using Microsoft.AspNetCore.Mvc;
+using PetShop.Petshop.Models;
 using PetShop.Petshop.Models.Petshop.Responses;
 using PetShop.Petshop.Repositories.Interfaces;
 using PetShop.Petshop.services.Interfaces;
-using System.Net;
 
 namespace PetShop.Petshop.services.Services
 {
@@ -43,9 +42,9 @@ namespace PetShop.Petshop.services.Services
                 throw new InvalidOperationException($"Employee with ID: {employee.EmployeeID} does not exist");
             }
 
-            if (employeeRequest.EmployeeID <= 0)
+            if (employeeRequest.EmployeeID < 0)
             {
-                throw new ArgumentException($"Employee ID must be greater than 0");
+                throw new ArgumentException($"Employee ID must not be less than 0");
             }
 
             var newEmployee = MapRequestToEmployee(employeeRequest);

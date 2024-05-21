@@ -9,14 +9,8 @@ namespace PetShop.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly IEmployeeService _employeeService;
-        public EmployeeController(IEmployeeService employeeService)
-        {
-            _employeeService = employeeService;
-        }
-
         [HttpGet("{employeeID}")]
-        public async Task<IActionResult> GetEmployeeByIDAsync(int employeeID)
+        public async Task<IActionResult> GetEmployeeByIDAsync(int employeeID, [FromServices] IEmployeeService _employeeService)
         {
             try
             {
@@ -30,7 +24,7 @@ namespace PetShop.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllEmployees()
+        public async Task<IActionResult> GetAllEmployees([FromServices] IEmployeeService _employeeService)
         {
             try
             {
@@ -44,7 +38,7 @@ namespace PetShop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddEmployee([FromBody] EmployeeRequest employeeRequest)
+        public async Task<IActionResult> AddEmployee([FromBody] EmployeeRequest employeeRequest, [FromServices] IEmployeeService _employeeService)
         {
             try
             {
@@ -66,11 +60,10 @@ namespace PetShop.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteEmployee(int employeeID)
+        public async Task<IActionResult> DeleteEmployee(int employeeID, [FromServices] IEmployeeService _employeeService)
         {
             try
             {
-
                 await _employeeService.DeleteEmployeeAsync(employeeID);
                 return Ok();
             }
@@ -81,7 +74,7 @@ namespace PetShop.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateEmployee(Employee employee)
+        public async Task<IActionResult> UpdateEmployee(Employee employee, [FromServices] IEmployeeService _employeeService)
         {
             try
             {
