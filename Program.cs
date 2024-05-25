@@ -17,6 +17,7 @@ builder.Configuration.AddJsonFile("appsettings.json");
 var services = builder.Services;
 var configuration = builder.Configuration;
 
+
 var tokenOptions = configuration.GetSection("TokenOptions").Get<TokenOption>();
 var key = Encoding.ASCII.GetBytes(tokenOptions.Secret);
 
