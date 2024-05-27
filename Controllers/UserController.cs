@@ -1,49 +1,78 @@
-﻿//using Microsoft.AspNetCore.Identity;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.IdentityModel.Tokens;
-//using PetShop.Petshop.Models;
-//using System.IdentityModel.Tokens.Jwt;
-//using System.Security.Claims;
-//using System.Text;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using PetShop.Petshop.Models;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
-//// ...
+namespace PetShop.Petshop.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UserController : ControllerBase
+    {
+        private readonly IConfiguration _configuration;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
 
-//[Route("api/[controller]")]
-//[ApiController]
-//public class UserController : ControllerBase
-//{
-//    private readonly IConfiguration _configuration;
+        public UserController(IConfiguration configuration, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        {
+            _configuration = configuration;
+            _userManager = userManager;
+            _signInManager = signInManager;
+        }
 
-//    public UserController(IConfiguration configuration)
-//    {
-//        _configuration = configuration;
-//    }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-//    [HttpPost("login")]
-//    public IActionResult Login(LoginModel model)
-//    {
-//        // Simulate user authentication (replace with actual authentication logic)
-//        if (model.Username == "admin" && model.Password == "password")
-//        {
-//            var tokenOptions = _configuration.GetSection("TokenOptions").Get<TokenOption>();
-//            var key = Encoding.ASCII.GetBytes(tokenOptions.Secret);
+            //var user = await _userManager.FindByEmailAsync(model.Email);
+            //if (user != null && !(await _userManager.HasPasswordAsync(user)))
+            //{
+            //    // retrieve plaintext password
+            //    var originalPassword = GetPlainTextPassword(user);
 
-//            var tokenDescriptor = new SecurityTokenDescriptor
-//            {
-//                Subject = new ClaimsIdentity(new[]
-//                {
-//                    new Claim(ClaimTypes.Name, model.Username)
-//                }),
-//                Expires = DateTime.UtcNow.AddDays(tokenOptions.ExpiryDays),
-//                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-//            };
+            //    var result = await _userManager.AddPasswordAsync(user, originalPassword);
 
-//            var tokenHandler = new JwtSecurityTokenHandler();
-//            var token = tokenHandler.CreateToken(tokenDescriptor);
+            //    if (!result.Succeeded)
+            //    {
+            //        // handle error
+            //    }
+            //}
 
-//            return Ok(new { token = tokenHandler.WriteToken(token) });
-//        }
 
-//        return Unauthorized();
-//    }
-//}
+            //var user = await _userManager.FindByNameAsync(model.Username);
+            //if (user == null)
+            //{
+            //    return Unauthorized();
+            //}
+
+            var tokenOptions = _configuration.GetSection("TokenOptions").Get<TokenOption>();
+            var key = Encoding.ASCII.GetBytes(tokenOptions.Secret);
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, model.Username)
+                }),
+                NotBefore = DateTime.UtcNow,
+                Expires = DateTime.UtcNow.AddDays(tokenOptions.ExpiryDays),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return Ok(new { token = tokenHandler.WriteToken(token) });
+        }
+    }
+}

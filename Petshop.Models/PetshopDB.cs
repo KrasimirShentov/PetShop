@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace PetShop.Petshop.Models
 {
@@ -16,5 +17,6 @@ namespace PetShop.Petshop.Models
         }
         public DbSet<Employee> employees { get; set; }
         public DbSet<Pet> pets { get; set; }
+        public DbSet<IdentityUser> IdentityUsers { get; set; }
     }
 }

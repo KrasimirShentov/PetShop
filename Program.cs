@@ -7,51 +7,60 @@ using PetShop.Petshop.Repositories.Interfaces;
 using PetShop.Petshop.Repositories.Repositories;
 using PetShop.Petshop.services.Interfaces;
 using PetShop.Petshop.services.Services;
-using System.Configuration;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load configuration from appsettings.json
 builder.Configuration.AddJsonFile("appsettings.json");
 
+// Retrieve services and configuration
 var services = builder.Services;
 var configuration = builder.Configuration;
-
 
 var tokenOptions = configuration.GetSection("TokenOptions").Get<TokenOption>();
 var key = Encoding.ASCII.GetBytes(tokenOptions.Secret);
 
-services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = tokenOptions.AuthenticatorIssuer,
-            ValidAudience = tokenOptions.AuthenticatorTokenProvider,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-        };
-    });
-
-
-builder.Services.AddDbContext<PetshopDB>(options =>
+services.AddAuthentication(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("Petshop");
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidIssuer = tokenOptions.AuthenticatorIssuer,
+        ValidAudience = tokenOptions.AuthenticatorTokenProvider,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+services.Configure<TokenOption>(configuration.GetSection("TokenOptions"));
+
+services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<PetshopDB>()
+    .AddDefaultTokenProviders();
+
+services.AddDbContext<PetshopDB>(options =>
+{
+    var connectionString = configuration.GetConnectionString("Petshop");
     options.UseNpgsql(connectionString);
 });
 
-builder.Services.AddTransient<IEmployeeReposity, EmployeeRepository>();
-builder.Services.AddTransient<IPetRepository, PetRepository>();
+services.AddTransient<IEmployeeReposity, EmployeeRepository>();
+services.AddTransient<IPetRepository, PetRepository>();
+services.AddTransient<IEmployeeService, EmployeeService>();
+services.AddTransient<IPetService, PetService>();
 
-builder.Services.AddTransient<IEmployeeService, EmployeeService>();
-builder.Services.AddTransient<IPetService, PetService>();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+services.AddControllers();
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -72,9 +81,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-//MY NIGHTMARE!!!
 app.MapControllers();
 
 app.Run();
