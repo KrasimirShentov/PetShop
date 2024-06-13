@@ -1,78 +1,110 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PetShop.Petshop.Models;
-using System;
+using PetShop.Petshop.services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace PetShop.Petshop.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class UserController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+    private readonly IConfiguration _configuration;
+    private readonly IUserService _userService;
+    private readonly TokenOptions _tokenOptions;
+
+    public UserController(IConfiguration configuration, IUserService userService, IOptions<TokenOptions> tokenOptions)
     {
-        private readonly IConfiguration _configuration;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        _configuration = configuration;
+        _userService = userService;
+        _tokenOptions = tokenOptions.Value;
+    }
 
-        public UserController(IConfiguration configuration, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] UserRequest model)
+    {
+        if (!ModelState.IsValid)
         {
-            _configuration = configuration;
-            _userManager = userManager;
-            _signInManager = signInManager;
+            return BadRequest(ModelState);
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        if (model == null)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            //var user = await _userManager.FindByEmailAsync(model.Email);
-            //if (user != null && !(await _userManager.HasPasswordAsync(user)))
-            //{
-            //    // retrieve plaintext password
-            //    var originalPassword = GetPlainTextPassword(user);
-
-            //    var result = await _userManager.AddPasswordAsync(user, originalPassword);
-
-            //    if (!result.Succeeded)
-            //    {
-            //        // handle error
-            //    }
-            //}
-
-
-            //var user = await _userManager.FindByNameAsync(model.Username);
-            //if (user == null)
-            //{
-            //    return Unauthorized();
-            //}
-
-            var tokenOptions = _configuration.GetSection("TokenOptions").Get<TokenOption>();
-            var key = Encoding.ASCII.GetBytes(tokenOptions.Secret);
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, model.Username)
-                }),
-                NotBefore = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddDays(tokenOptions.ExpiryDays),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return Ok(new { token = tokenHandler.WriteToken(token) });
+            return BadRequest("UserRequest model is null.");
         }
+
+        if (string.IsNullOrWhiteSpace(model.Password))
+        {
+            return BadRequest("Password is required.");
+        }
+
+        var newUser = new UserRequest
+        {
+            UserID = model.UserID,
+            Username = model.Username,
+            Password = model.Password,
+            Email = model.Email,
+            CreateOn = DateTime.UtcNow
+        };
+
+        UserInfo user;
+
+        try
+        {
+            user = await _userService.AddUserAsync(newUser);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+
+        return Ok(user);
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] UserRequest model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var user = await _userService.GetUserByIDAsync(model.UserID);
+        if (user == null)
+        {
+            return Unauthorized("Invalid username or password.");
+        }
+
+        if (user.Password != model.Password)
+        {
+            return Unauthorized("Invalid username or password.");
+        }
+
+        var keyBytes = Encoding.ASCII.GetBytes(_tokenOptions.Secret);
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+            new Claim(ClaimTypes.Name, user.Username)
+        }),
+            NotBefore = DateTime.UtcNow,
+            Expires = DateTime.UtcNow.AddDays(_tokenOptions.ExpiryDays),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return Ok(new { token = tokenHandler.WriteToken(token) });
     }
 }

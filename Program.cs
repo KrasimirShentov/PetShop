@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PetShop.Petshop.Models;
 using PetShop.Petshop.Repositories.Interfaces;
 using PetShop.Petshop.Repositories.Repositories;
@@ -11,37 +12,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load configuration from appsettings.json
 builder.Configuration.AddJsonFile("appsettings.json");
 
-// Retrieve services and configuration
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-var tokenOptions = configuration.GetSection("TokenOptions").Get<TokenOption>();
-var key = Encoding.ASCII.GetBytes(tokenOptions.Secret);
-
-services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidIssuer = tokenOptions.AuthenticatorIssuer,
-        ValidAudience = tokenOptions.AuthenticatorTokenProvider,
-        ClockSkew = TimeSpan.Zero
-    };
-});
-
-services.Configure<TokenOption>(configuration.GetSection("TokenOptions"));
+services.Configure<TokenOptions>(configuration.GetSection("TokenOptions"));
 
 services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<PetshopDB>()
@@ -55,13 +31,59 @@ services.AddDbContext<PetshopDB>(options =>
 
 services.AddTransient<IEmployeeReposity, EmployeeRepository>();
 services.AddTransient<IPetRepository, PetRepository>();
+services.AddTransient<IUserRepository, UserRepository>();
+
 services.AddTransient<IEmployeeService, EmployeeService>();
 services.AddTransient<IPetService, PetService>();
+services.AddTransient<IUserService, UserService>();
 
 services.AddControllers();
 services.AddEndpointsApiExplorer();
-services.AddSwaggerGen();
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidAudience = configuration["TokenOptions:Audience"],
+            ValidIssuer = configuration["TokenOptions:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey
+            (Encoding.UTF8.GetBytes(configuration["TokenOptions:Key"]))
+        };
+    });
+
+services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
+});
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -70,11 +92,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

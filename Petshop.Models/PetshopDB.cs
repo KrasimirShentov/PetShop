@@ -17,6 +17,6 @@ namespace PetShop.Petshop.Models
         }
         public DbSet<Employee> employees { get; set; }
         public DbSet<Pet> pets { get; set; }
-        public DbSet<IdentityUser> IdentityUsers { get; set; }
+        public DbSet<UserInfo> users { get; set; }
     }
 }

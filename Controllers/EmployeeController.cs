@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PetShop.Petshop.Models;
 using PetShop.Petshop.Models.Petshop.Responses;
 using PetShop.Petshop.services.Interfaces;
 
 namespace PetShop.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase
